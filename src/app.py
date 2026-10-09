@@ -32,7 +32,7 @@ def main() -> None:
     if pred:
         fig.add_trace(go.Scatter(x=list(range(len(hist), len(hist)+len(pred))), y=pred, name="Forecast", line=dict(color="#e0b15a", dash="dash")))
     fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font_color="#e7ecf3", height=380, title="Hourly attack counts")
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     alerts = fc.get("alerts") or []
     if alerts:
         st.warning(f"{len(alerts)} observed hours sit above mean + 2σ.")
