@@ -313,6 +313,8 @@ runButton.addEventListener("click", runCurrent);
 analyzeButton.addEventListener("click", runUploaded);
 document.getElementById("useDemo").addEventListener("click", useDemo);
 document.getElementById("downloadTemplate").addEventListener("click", downloadTemplate);
+document.getElementById("exportCsv").addEventListener("click", exportCsv);
+document.getElementById("exportJson").addEventListener("click", exportJson);
 document.getElementById("browseCsv").addEventListener("click", event => {
   event.stopPropagation();
   csvInput.click();
