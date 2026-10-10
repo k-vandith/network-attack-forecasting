@@ -93,7 +93,7 @@
         <article class="panel chart-panel">
           <div class="panel-head">
             <div><div class="panel-index">03 <span>/</span> VOLUME TIMELINE</div><h3>Observed vs. projected attacks</h3></div>
-            <span class="panel-tag" id="chartWindow">24H OBSERVED</span>
+            <div class="chart-actions"><span class="panel-tag" id="chartWindow">24H OBSERVED</span><button id="exportCsv" class="button button-export" type="button">CSV ↓</button><button id="exportJson" class="button button-export" type="button">JSON ↗</button></div>
           </div>
           <div id="trendChart" class="trend-chart" role="img" aria-label="Observed hourly attack counts and forecast projection"><div class="chart-loading">Waiting for data…</div></div>
           <div class="chart-legend"><span><i class="legend-observed"></i>Observed volume</span><span><i class="legend-projected"></i>Forecast</span><span><i class="legend-alert"></i>Flagged interval</span></div>
