@@ -5,4 +5,5 @@ def test_forecast():
     vol = attack_volume_series(df, freq="h")
     out = forecast_volumes(vol, horizon=5)
     assert len(out["forecast"]) == 5
+    assert all(0 <= item["index"] < len(vol) for item in out.get("alerts", []))
     assert "mae" in evaluation_metrics(np.array([1.,2.,3.]), np.array([1.,2.,2.]))

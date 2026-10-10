@@ -1,187 +1,155 @@
-# Network Attack Forecasting
+<p align="center">
+  <img src="web/mark.svg" alt="VectorCast logo" width="88">
+</p>
 
-Machine-learning pipeline for forecasting network attack likelihood from feature tables, with a rules-based fallback when sklearn models are unavailable.
+<h1 align="center">VectorCast</h1>
 
-## Problem Statement
+<p align="center">
+  <strong>Network attack forecasting and signal triage</strong><br>
+  A local-first console for exploring synthetic attack volume, near-term projections, and unusual traffic windows.
+</p>
 
-SOC teams need early indicators of elevated attack risk from historical telemetry features. Many environments cannot train deep models; a portable pipeline with transparent fallbacks is required.
+<p align="center">
+  <img src="https://img.shields.io/github/actions/workflow/status/k-vandith/network-attack-forecasting/tests.yml?branch=main&label=CI" alt="CI status">
+  <img src="https://img.shields.io/badge/Python-3.11%2B-3776AB" alt="Python 3.11 or newer">
+  <img src="https://img.shields.io/badge/UI-HTML%20%2F%20CSS%20%2F%20JS-4064F6" alt="HTML CSS JavaScript UI">
+  <img src="https://img.shields.io/badge/Runtime-local--first-27856D" alt="Local first">
+  <img src="https://img.shields.io/badge/License-MIT-777777" alt="MIT License">
+</p>
 
-## Overview
+---
 
-Train a classifier on synthetic or provided feature CSVs, score new windows, and visualise forecasts in Streamlit. If scikit-learn is missing, deterministic rules still produce risk labels.
+## What is VectorCast?
 
-## Features
+VectorCast demonstrates a defensive forecasting workflow: generated flow labels are aggregated into hourly attack counts, a model projects the next set of intervals, and unusual observed hours are marked for review. The browser UI uses plain HTML, CSS, and JavaScript; Python serves the assets and forecast data from the loopback interface.
 
-- **Feature-table training** – CSV in, model out
-- **Sklearn classifiers** with joblib persistence
-- **Rules fallback** – works without heavy ML deps
-- **Streamlit dashboard** – train / score / plot
-- **Demo dataset generator**
+The default workspace uses a reproducible synthetic dataset. It does not ingest production telemetry, attribute attacks to real actors, or replace SIEM/NDR detection.
+
+## Quick start
+
+Requirements: Python 3.11 or newer.
+
+    git clone https://github.com/k-vandith/network-attack-forecasting.git
+    cd network-attack-forecasting
+    python -m venv .venv
+
+Activate the environment:
+
+    # Windows PowerShell
+    .venv\Scripts\Activate.ps1
+
+    # Linux / macOS
+    source .venv/bin/activate
+
+Install and launch:
+
+    python -m pip install --upgrade pip
+    python -m pip install -r requirements.txt
+    python run.py
+
+Open **http://127.0.0.1:8501**. The server binds to loopback by default.
+
+## Try it in five steps
+
+1. **Launch the console.** Run `python run.py` and open the local address above.
+2. **Set the sample size.** Choose between 400 and 4,000 generated traffic records.
+3. **Choose a lookahead.** Select a projection horizon of 6, 12, 18, or 24 hours.
+4. **Inspect the signal.** Compare observed history with the dashed projection, then review category mix and flagged windows.
+5. **Export your analysis.** Download the time series as CSV or the complete demo payload as JSON.
+
+## Inputs and outputs
+
+| Area | Current behavior |
+|---|---|
+| Data source | Reproducible synthetic network labels; no live capture |
+| Sample size | 400–4,000 records, in steps of 200 |
+| Forecast horizon | 6, 12, 18, or 24 hourly intervals |
+| Forecast engine | Scikit-learn gradient boosting when available; moving-average fallback otherwise |
+| Forecast output | Observed history, predicted attack counts, mean metrics, and relative outlook |
+| Review signals | Recent observed hours above the full-series mean plus two standard deviations |
+| Export | CSV time series and JSON report |
+| Network behavior | Local HTTP assets and API; no telemetry upload or external data lookup |
 
 ## Architecture
 
-```
-┌─────────────┐     ┌──────────────┐     ┌─────────────┐
-│  Streamlit  │────▶│   Pipeline   │────▶│ Sklearn or  │
-│     UI      │     │              │     │ Rules engine│
-└─────────────┘     └──────┬───────┘     └─────────────┘
-                           │
-                    ┌──────▼───────┐
-                    │ models/ + CSV│
-                    └──────────────┘
-```
-
-## Tech Stack
-
-- Python 3.11+
-- Pandas / NumPy
-- scikit-learn (optional)
-- Streamlit + Plotly
-- joblib
-- pytest
-
-## Repository Structure
-
-```
-network-attack-forecasting/
-├── README.md
-├── requirements.txt
-├── src/
-│   └── pipeline.py
-├── tests/
-│   └── test_pipeline.py
-├── models/
-├── data/
-├── scripts/
-│   ├── setup_env.py
-│   ├── setup.sh
-│   ├── setup.ps1
-│   └── generate_demo_data.py
-└── docs/
+```mermaid
+flowchart TD
+    A[Browser UI<br/>HTML · CSS · JavaScript] -->|local GET| B[Python loopback server]
+    B --> C[Forecast API]
+    C --> D[Generated traffic labels]
+    D --> E[Hourly attack aggregation]
+    E --> F[Gradient boosting or moving-average fallback]
+    E --> G[Threshold-based review windows]
+    F --> H[Forecast JSON]
+    G --> H
+    H --> A
 ```
 
-## System Requirements
+## Reading the results
 
-| Mode | CPU | RAM | Disk | GPU |
-|------|-----|-----|------|-----|
-| Demo | Any | 2 GB | 1 GB | Not needed |
+- **Forecast outlook** compares the average projected count with the average of the latest observed hourly bins. The label is `Watch` at 4% above baseline and `Elevated` at 12% above baseline; otherwise it is `Stable`. These are explanatory UI bands, not calibrated severity scores.
+- **Hourly attack volume** displays the observed series as a solid line and model output as a dashed line. The projection is an estimate, not a guarantee.
+- **Attack categories** counts the generated `dos`, `probe`, `r2l`, and `u2r` labels across the selected sample.
+- **Risk windows** marks recent observed intervals above the series-wide mean plus two standard deviations. A flagged interval is a review cue, not proof of malicious activity.
+- **Model engine** identifies the active forecasting backend.
 
-## Installation
+## API and development
 
-### Recommended (all platforms) — automated bootstrap
+The forecasting functions remain available for Python callers:
 
-Handles missing `ensurepip`, symlink restrictions, and installs dependencies into `.venv`:
+    from src.forecasting import (
+        attack_volume_series,
+        forecast_volumes,
+        load_cicids_style,
+    )
 
-```bash
-git clone https://github.com/k-vandith/network-attack-forecasting.git
-cd network-attack-forecasting
-python3 scripts/setup_env.py    # or:  python scripts/setup_env.py
-```
+    traffic = load_cicids_style(n=1200)
+    hourly = attack_volume_series(traffic)
+    result = forecast_volumes(hourly, horizon=12)
 
-Then activate:
+The local service also exposes `GET /api/health` and `GET /api/forecast?n=1200&horizon=12`. Supported API settings are validated server-side.
 
-```bash
-# Linux / macOS
-source .venv/bin/activate
+Run the checks:
 
-# Windows PowerShell
-.venv\Scripts\Activate.ps1
-```
+    python -m pip install -r requirements-dev.txt
+    pytest -q
+    ruff check src/app.py src/ui_theme.py src/webapp.py run.py tests/test_ui_smoke.py tests/test_webapp.py
+    bandit -q -r src/app.py src/webapp.py run.py -ll
+    pip-audit -r requirements.txt --progress-spinner off
 
-### Manual setup
+## Privacy, security, and limitations
 
-#### Windows (PowerShell)
+- The server binds to `127.0.0.1` by default and does not expose the dashboard on all network interfaces.
+- Assets and forecast requests are served locally; there are no remote fonts, chart CDNs, tracking calls, or external threat-intelligence lookups.
+- Response headers include a restrictive Content Security Policy, `X-Content-Type-Options`, `X-Frame-Options`, and a no-referrer policy.
+- The default UI uses synthetic telemetry only. Do not interpret its outputs as findings from a real network.
+- Synthetic labels may not represent real traffic distributions. Forecast quality is not a substitute for validation against held-out, representative data.
+- Threshold flags and outlook bands are intentionally transparent heuristics and do not establish attribution, intent, or causality.
 
-```powershell
-git clone https://github.com/k-vandith/network-attack-forecasting.git
-cd network-attack-forecasting
-python -m venv .venv --copies
-.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-```
+## Project map
 
-#### Linux / macOS
-
-```bash
-git clone https://github.com/k-vandith/network-attack-forecasting.git
-cd network-attack-forecasting
-# If venv fails with ensurepip errors:
-#   sudo apt install python3-venv python3-pip
-python3 -m venv .venv --copies
-source .venv/bin/activate
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-### Why `--copies`?
-
-Some environments cannot create symlinks inside a venv (`Operation not permitted` on `lib64 → lib`). Using `--copies` avoids that. `scripts/setup_env.py` tries `--copies` first automatically.
-
-## Environment Variables
-
-None required.
-
-## Dataset / Demo Mode
-
-```bash
-python scripts/generate_demo_data.py
-```
-
-## Running the Application
-
-```bash
-streamlit run src/pipeline.py
-```
-
-## API Usage
-
-```python
-from src.pipeline import train_and_predict
-result = train_and_predict("data/demo_features.csv")
-print(result)
-```
-
-## Testing
-
-```bash
-pytest -v
-```
-
-## Troubleshooting
-
-| Issue | Fix |
-|-------|-----|
-| `ModuleNotFoundError: src` | Run from project root; ensure `PYTHONPATH=.` |
-| `venv` / ensurepip fails | Run `python3 scripts/setup_env.py` or install `python3-venv` |
-| `Operation not permitted` on lib64 | Use `python3 -m venv .venv --copies` |
-| Missing dependency | Activate `.venv` and re-run `pip install -r requirements.txt` |
-
-## Limitations
-
-- Forecasts are correlational, not causal certainty.
-- Rules fallback is intentionally simple for offline demos.
-- Not a substitute for full NDR / SIEM correlation.
-
-## Security / Privacy
-
-- Defensive forecasting only.
-- Keep production telemetry offline and access-controlled.
-
-## Future Improvements
-
-- Time-series models (LSTM / Prophet optional)
-- Online learning adapters
-- SIEM export connectors
+    network-attack-forecasting/
+    ├── README.md
+    ├── run.py
+    ├── src/
+    │   ├── app.py             # compatibility entrypoint
+    │   ├── webapp.py          # local HTTP server and JSON API
+    │   ├── forecasting.py     # hourly aggregation and time-series forecast
+    │   ├── pipeline.py        # synthetic features and classifier helpers
+    │   └── ui_theme.py        # retained theme helper
+    ├── web/
+    │   ├── index.html
+    │   ├── styles.css
+    │   ├── app.js
+    │   └── mark.svg
+    ├── tests/
+    │   ├── test_pipeline.py
+    │   ├── test_forecast.py
+    │   ├── test_ui_smoke.py
+    │   └── test_webapp.py
+    ├── scripts/
+    └── .github/workflows/tests.yml
 
 ## License
 
 MIT
-
-## Interface
-
-```bash
-python run.py
-```
-
-Opens the local Streamlit workspace on port 8501. Demo paths work without GPU, webcam, or a paid API. `streamlit run src/app.py` is equivalent.
