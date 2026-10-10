@@ -78,7 +78,7 @@
         <article class="metric-card"><div class="metric-top"><span>OBSERVED ATTACK EVENTS</span><span class="metric-symbol blue">↗</span></div><div class="metric-value" id="attackEvents">—</div><div class="metric-foot"><span class="metric-foot-dot blue-dot"></span>In current sample <span class="foot-right" id="attackShare">—%</span></div></article>
         <article class="metric-card"><div class="metric-top"><span>MEAN / HOUR</span><span class="metric-symbol violet">⌁</span></div><div class="metric-value" id="avgAttacks">—</div><div class="metric-foot">Recent observed baseline<span class="foot-right">24h window</span></div></article>
         <article class="metric-card"><div class="metric-top"><span>MODEL ENGINE</span><span class="metric-symbol orange">◈</span></div><div class="metric-value metric-text" id="backend">—</div><div class="metric-foot"><span class="metric-foot-dot green-dot"></span><span id="modelStatus">Local calculation</span></div></article>
-        <article class="metric-card"><div class="metric-top"><span>WINDOWS FLAGGED</span><span class="metric-symbol red">!</span></div><div class="metric-value" id="alertCount">—</div><div class="metric-foot">Observed volume above mean + 2σ</div></article>
+        <article class="metric-card"><div class="metric-top"><span>WINDOWS FLAGGED</span><span class="metric-symbol red">!</span></div><div class="metric-value" id="alertCount">—</div><div class="metric-foot">Observed volume above full-series mean + 2σ</div></article>
       </section>
 
       <section id="trend" class="panel chart-panel">
@@ -97,9 +97,9 @@
           <div class="mix-note"><span class="note-icon">i</span><span>Demo labels are synthetic and intended for interface exploration, not incident attribution.</span></div>
         </article>
         <article id="signals" class="panel signals-panel">
-          <div class="panel-heading compact-heading"><div><div class="section-kicker">03 / RISK WINDOWS</div><h2>Signals to review</h2><p>Recent hours beyond the baseline threshold.</p></div><span class="panel-number" id="signalBadge">—</span></div>
+          <div class="panel-heading compact-heading"><div><div class="section-kicker">03 / RISK WINDOWS</div><h2>Signals to review</h2><p>Recent hours beyond the full-series threshold.</p></div><span class="panel-number" id="signalBadge">—</span></div>
           <div id="signalList" class="signal-list"><div class="chart-loading">Scanning recent windows…</div></div>
-          <div class="signals-foot"><span class="signal-status-dot"></span>Threshold: recent mean + 2 standard deviations</div>
+          <div class="signals-foot"><span class="signal-status-dot"></span>Threshold: full-series mean + 2 standard deviations</div>
         </article>
       </section>
 
