@@ -291,3 +291,8 @@ input[type="range"]:disabled { opacity: .32; cursor: not-allowed; }
 .status-dot.outlook-watch { background: var(--orange); box-shadow: 0 0 0 3px #ffc0781b; }
 .status-dot.outlook-elevated { background: var(--red); box-shadow: 0 0 0 3px #ff7d8a1b; }
 .status-dot.outlook-stable { background: var(--mint); box-shadow: 0 0 0 3px #8de3b91b; }
+
+.chart-actions { display: flex; align-items: center; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+.button-export { min-height: 26px; padding: 0 8px; border-color: #304252; background: #111d28; color: #a9bbc6; font-size: 8px; }
+.button-export:hover:not(:disabled) { border-color: #4d766b; background: #152820; color: var(--mint); }
+@media (max-width: 540px) { .chart-actions { justify-content: flex-start; } }
