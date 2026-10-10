@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f3f5fa">
+  <meta name="description" content="Local-first network attack volume forecasting console.">
+  <title>VectorCast — Network Forecasting</title>
+  <link rel="icon" href="/web/mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/web/styles.css">
+  <script src="/web/app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="rail">
+      <a class="brand" href="/" aria-label="VectorCast home">
+        <img src="/web/mark.svg" alt="" width="40" height="40">
+        <span><strong>vectorcast</strong><small>THREAT INTELLIGENCE</small></span>
+      </a>
+      <div class="rail-section-label">WORKSPACE</div>
+      <nav class="nav-list" aria-label="Workspace">
+        <a class="nav-item selected" href="#overview"><span class="nav-icon">▦</span><span>Forecast overview</span><b>01</b></a>
+        <a class="nav-item" href="#trend"><span class="nav-icon">⌁</span><span>Traffic timeline</span></a>
+        <a class="nav-item" href="#mix"><span class="nav-icon">◫</span><span>Attack signatures</span></a>
+        <a class="nav-item" href="#signals"><span class="nav-icon">◎</span><span>Risk windows</span></a>
+      </nav>
+      <div class="rail-divider"></div>
+      <div class="rail-section-label">DATA SOURCE</div>
+      <div class="source-card">
+        <div class="source-top"><span class="source-icon">⌘</span><span class="live-dot"></span></div>
+        <strong>Synthetic telemetry</strong>
+        <span class="source-sub">LOCAL DEMO STREAM</span>
+        <div class="source-meta"><span>Dataset</span><b id="sourceRows">1,200 rows</b></div>
+        <div class="source-meta"><span>Connection</span><b class="online">● Online</b></div>
+      </div>
+      <div class="rail-bottom">
+        <div class="privacy-mark"><span>◆</span><div><strong>Local-first mode</strong><small>No telemetry leaves this device</small></div></div>
+        <div class="rail-version">VECTORCAST <span>v1.0.0</span></div>
+      </div>
+    </aside>
+
+    <main id="overview" class="main">
+      <header class="topbar">
+        <div class="breadcrumb"><span>SECURITY ANALYTICS</span><i>/</i><strong>Forecasting</strong></div>
+        <div class="topbar-right"><span class="environment"><span class="live-dot"></span> SIMULATION ENVIRONMENT</span><span class="avatar">VC</span></div>
+      </header>
+
+      <section class="page-heading">
+        <div>
+          <div class="eyebrow"><span class="eyebrow-line"></span> NETWORK DEFENSE / SIGNAL LAB</div>
+          <h1>Attack forecast<span class="title-period">.</span></h1>
+          <p>Read the traffic before it becomes a spike. Forecasts are derived from the local demo stream.</p>
+        </div>
+        <div class="heading-actions">
+          <button id="exportCsv" class="button button-secondary" type="button"><span>⇩</span> Export CSV</button>
+          <button id="exportJson" class="button button-primary" type="button"><span>↗</span> Export report</button>
+        </div>
+      </section>
+
+      <section class="control-strip" aria-label="Forecast controls">
+        <div class="control-intro"><span class="control-glyph">⌘</span><div><strong>Forecast parameters</strong><small>Adjust the simulation window</small></div></div>
+        <label class="range-control" for="rows"><span class="control-label">TRAFFIC RECORDS <b id="rowsValue">1,200</b></span><input id="rows" type="range" min="400" max="4000" step="200" value="1200"><span class="range-labels"><span>400 records</span><span>4,000 records</span></span></label>
+        <label class="select-control" for="horizon"><span class="control-label">LOOKAHEAD</span><select id="horizon"><option value="6">Next 6 hours</option><option value="12" selected>Next 12 hours</option><option value="18">Next 18 hours</option><option value="24">Next 24 hours</option></select></label>
+        <button id="refresh" class="refresh-button" type="button"><span class="refresh-icon">↻</span><span>Recalculate</span></button>
+      </section>
+
+      <section class="outlook-band" aria-label="Forecast outlook">
+        <div class="outlook-copy">
+          <div class="band-label"><span class="pulse-ring"></span> FORECAST OUTLOOK <span class="band-divider">/</span> RELATIVE TO RECENT BASELINE</div>
+          <div class="outlook-title"><span id="outlookWord">Calculating</span><span class="outlook-dot">↗</span></div>
+          <p id="outlookText">Comparing predicted attack volume with the recent observed average.</p>
+        </div>
+        <div class="outlook-figure"><span class="figure-label">PROJECTED ATTACK EVENTS</span><div><strong id="forecastTotal">—</strong><span>events</span></div><small>over next <b id="forecastHours">12</b> hours</small></div>
+        <div class="outlook-spark" aria-hidden="true"><svg viewBox="0 0 240 88"><path d="M0 65 L18 58 L35 66 L51 42 L69 50 L86 32 L102 45 L119 20 L137 35 L154 29 L171 14 L190 28 L208 12 L226 18 L240 4" fill="none" stroke="#a7b6ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M0 65 L18 58 L35 66 L51 42 L69 50 L86 32 L102 45 L119 20 L137 35 L154 29 L171 14 L190 28 L208 12 L226 18 L240 4 L240 88 L0 88 Z" fill="url(#sparkFill)"/><defs><linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#a7b6ff" stop-opacity=".28"/><stop offset="100%" stop-color="#a7b6ff" stop-opacity="0"/></linearGradient></defs></svg></div>
+      </section>
+
+      <section class="metric-grid" aria-label="Key metrics">
+        <article class="metric-card"><div class="metric-top"><span>OBSERVED ATTACK EVENTS</span><span class="metric-symbol blue">↗</span></div><div class="metric-value" id="attackEvents">—</div><div class="metric-foot"><span class="metric-foot-dot blue-dot"></span>In current sample <span class="foot-right" id="attackShare">—%</span></div></article>
+        <article class="metric-card"><div class="metric-top"><span>MEAN / HOUR</span><span class="metric-symbol violet">⌁</span></div><div class="metric-value" id="avgAttacks">—</div><div class="metric-foot">Recent observed baseline<span class="foot-right">24h window</span></div></article>
+        <article class="metric-card"><div class="metric-top"><span>MODEL ENGINE</span><span class="metric-symbol orange">◈</span></div><div class="metric-value metric-text" id="backend">—</div><div class="metric-foot"><span class="metric-foot-dot green-dot"></span><span id="modelStatus">Local calculation</span></div></article>
+        <article class="metric-card"><div class="metric-top"><span>WINDOWS FLAGGED</span><span class="metric-symbol red">!</span></div><div class="metric-value" id="alertCount">—</div><div class="metric-foot">Observed volume above mean + 2σ</div></article>
+      </section>
+
+      <section id="trend" class="panel chart-panel">
+        <div class="panel-heading">
+          <div><div class="section-kicker">01 / TIME SERIES</div><h2>Hourly attack volume</h2><p>Observed history meets the model projection.</p></div>
+          <div class="chart-key"><span><i class="key-dot observed"></i>Observed</span><span><i class="key-dot projected"></i>Projected</span><span><i class="key-dot anomaly"></i>Flagged window</span></div>
+        </div>
+        <div id="trendChart" class="trend-chart" role="img" aria-label="Hourly attack count time series chart"><div class="chart-loading">Generating time series…</div></div>
+        <div class="chart-foot"><span><i class="foot-line observed-line"></i> Historical count</span><span><i class="foot-line forecast-line"></i> Forecast line is indicative, not a guarantee</span><span id="chartWindow">Window: —</span></div>
+      </section>
+
+      <section class="lower-grid">
+        <article id="mix" class="panel mix-panel">
+          <div class="panel-heading compact-heading"><div><div class="section-kicker">02 / SIGNATURE MIX</div><h2>Attack categories</h2><p>Label distribution across the sample.</p></div><span class="panel-number">04 TYPES</span></div>
+          <div id="attackMix" class="mix-list"><div class="chart-loading">Calculating categories…</div></div>
+          <div class="mix-note"><span class="note-icon">i</span><span>Demo labels are synthetic and intended for interface exploration, not incident attribution.</span></div>
+        </article>
+        <article id="signals" class="panel signals-panel">
+          <div class="panel-heading compact-heading"><div><div class="section-kicker">03 / RISK WINDOWS</div><h2>Signals to review</h2><p>Recent hours beyond the baseline threshold.</p></div><span class="panel-number" id="signalBadge">—</span></div>
+          <div id="signalList" class="signal-list"><div class="chart-loading">Scanning recent windows…</div></div>
+          <div class="signals-foot"><span class="signal-status-dot"></span>Threshold: recent mean + 2 standard deviations</div>
+        </article>
+      </section>
+
+      <footer class="page-footer"><div><img src="/web/mark.svg" alt="" width="20" height="20"><strong>VectorCast</strong><span>FORECAST CONSOLE</span></div><p>Research demo · Synthetic data · Not an operational detection system</p><a href="https://github.com/k-vandith/network-attack-forecasting" target="_blank" rel="noreferrer">Source repository ↗</a></footer>
+      <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    </main>
+  </div>
+</body>
+</html>
