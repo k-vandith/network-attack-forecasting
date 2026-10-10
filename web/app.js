@@ -74,7 +74,7 @@ function updateReadout(data) {
   document.getElementById("signalBadge").textContent = data.alerts.length ? data.alerts.length + " FLAGGED" : "CLEAR";
   document.getElementById("chartWindow").textContent = data.history.length + "H OBSERVED / " + data.forecast.length + "H PROJECTED";
   const dot = document.getElementById("outlookDot");
-  dot.style.backgroundColor = data.outlook === "Elevated" ? "#ff7d8a" : data.outlook === "Watch" ? "#ffc078" : "#8de3b9";
+  dot.className = "status-dot outlook-" + String(data.outlook || "stable").toLowerCase();
 }
 
 function drawTrend(data) {
