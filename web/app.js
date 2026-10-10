@@ -117,8 +117,8 @@ function drawMix(data) {
   const max = Math.max(1, ...items.map(item => data.attack_types[item.key] || 0));
   target.innerHTML = items.map(item => {
     const count = Number(data.attack_types[item.key] || 0);
-    const width = Math.max(count > 0 ? 1 : 0, count / max * 100);
-    return '<div class="mix-row"><div class="mix-label">' + item.label + '</div><div class="mix-track"><div class="mix-fill" style="width:' + width.toFixed(2) + '%;background:' + item.color + '"></div></div><div class="mix-value">' + formatNumber(count) + '</div></div>';
+    const width = Math.round(count / max * 20) * 5;
+    return '<div class="mix-row"><div class="mix-label">' + item.label + '</div><div class="mix-track"><div class="mix-fill mix-fill-' + item.key + ' w-' + width + '"></div></div><div class="mix-value">' + formatNumber(count) + '</div></div>';
   }).join("");
 }
 
