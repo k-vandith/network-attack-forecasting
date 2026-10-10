@@ -47,7 +47,8 @@ def forecast_volumes(vol: pd.DataFrame, horizon: int = 12) -> dict[str, Any]:
         p = float(model.predict([hist[-window:]])[0]) if model is not None else float(np.mean(hist[-window:]))
         p = max(0.0, p); preds.append(p); hist.append(p)
     mu, sigma = float(np.mean(y)), float(np.std(y) + 1e-6)
-    alerts = [{"index": int(len(y)-24+i), "value": float(v), "level": "high"} for i, v in enumerate(y[-24:]) if v > mu + 2*sigma]
+    alert_start = max(0, len(y) - 24)
+    alerts = [{"index": int(alert_start+i), "value": float(v), "level": "high"} for i, v in enumerate(y[-24:]) if v > mu + 2*sigma]
     return {"backend": backend, "forecast": [round(p, 2) for p in preds], "history_tail": [float(x) for x in y[-24:]], "alerts": alerts, "metrics": {"train_points": len(yy), "mean_attack": round(mu, 2)}}
 
 def evaluation_metrics(y_true, y_pred) -> dict[str, float]:
