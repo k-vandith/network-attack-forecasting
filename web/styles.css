@@ -287,3 +287,7 @@ input[type="range"]:disabled { opacity: .32; cursor: not-allowed; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+.status-dot.outlook-watch { background: var(--orange); box-shadow: 0 0 0 3px #ffc0781b; }
+.status-dot.outlook-elevated { background: var(--red); box-shadow: 0 0 0 3px #ff7d8a1b; }
+.status-dot.outlook-stable { background: var(--mint); box-shadow: 0 0 0 3px #8de3b91b; }
