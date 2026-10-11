@@ -42,6 +42,12 @@ You can also start with **Download sample CSV** in the app or use the demo strea
 
 CSV data is processed by the local server in memory and is not saved to disk or sent to an external service. Forecasts and anomaly flags are estimates, not proof of malicious activity.
 
+## Production deployment gate
+
+VectorCast deliberately binds to `127.0.0.1` and has no application authentication. Do not change the bind address to a public interface or expose the process directly. Remote access should go through a same-host authenticated HTTPS reverse proxy with appropriate access logging and rate limits.
+
+The built-in input is synthetic. An uploaded CSV forecast is only a statistical projection of the supplied labels and timestamps; it is not a calibrated attack probability, operational threat-intelligence feed, or proof that an incident will occur. Before operational use, validate against representative historical telemetry, define drift and false-alert monitoring, and test retraining, rollback, and incident response.
+
 ## License
 
 MIT
