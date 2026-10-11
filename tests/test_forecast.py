@@ -139,3 +139,24 @@ def test_forecast_core_rejects_colliding_normalized_headers():
 
     with pytest.raises(ValueError, match="Ambiguous duplicate input headers after normalization"):
         attack_volume_series(frame)
+
+
+
+@pytest.mark.parametrize(
+    "label, expected",
+    [
+        ("DoS Hulk", "dos"),
+        ("DDoS", "dos"),
+        ("PortScan", "probe"),
+        ("FTP-Patator", "r2l"),
+        ("buffer_overflow", "u2r"),
+        ("Benign", "normal"),
+        ("dosage review", "other"),
+        ("probable routine event", "other"),
+        ("scanline metric", "other"),
+    ],
+)
+def test_canonical_label_uses_known_tokens_not_substring_accidents(label, expected):
+    from src.labels import canonical_label
+
+    assert canonical_label(label) == expected
