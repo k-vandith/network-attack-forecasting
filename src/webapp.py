@@ -72,6 +72,12 @@ def _prepare_csv(raw: bytes) -> pd.DataFrame:
     if labels.isna().any() or labels.eq("").any():
         raise ValueError("The label column contains blank values. Remove or fill those rows.")
     prepared = pd.DataFrame({"label": labels.map(_canonical_label).astype(str)})
+    if prepared["label"].eq("unclassified").any():
+        examples = sorted(set(labels[prepared["label"].eq("unclassified")].astype(str)))[:5]
+        raise ValueError(
+            "Unrecognized network-event label(s): " + ", ".join(repr(item) for item in examples)
+            + ". Map them to a known benign or attack class before forecasting."
+        )
 
     time_column = next((normalized_headers[key] for key in TIME_HEADERS if key in normalized_headers), None)
     if time_column is not None:
