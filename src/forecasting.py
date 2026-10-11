@@ -25,7 +25,14 @@ def _normalize_frame(df: pd.DataFrame) -> pd.DataFrame:
         raise ValueError("The input dataset has no rows.")
 
     result = df.copy()
-    normalized = {_header_key(column): column for column in result.columns}
+    normalized: dict[str, object] = {}
+    for column in result.columns:
+        key = _header_key(column)
+        if key in normalized:
+            raise ValueError(
+                f"Ambiguous duplicate input headers after normalization: {normalized[key]!r} and {column!r}."
+            )
+        normalized[key] = column
     label_column = next((normalized[key] for key in _LABEL_HEADERS if key in normalized), None)
     if label_column is None:
         raise ValueError("A label column is required. Use label, class, attack_type, category, or target.")
