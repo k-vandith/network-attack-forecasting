@@ -127,3 +127,15 @@ def test_file_loader_prefers_canonical_label_and_timestamp_columns_when_aliases_
     assert int(volume["total"].sum()) == 8
     assert int(volume["attack_count"].sum()) == 0
     assert int(volume["dos"].sum()) == 0
+
+
+
+def test_forecast_core_rejects_colliding_normalized_headers():
+    frame = pd.DataFrame({
+        "label": ["BENIGN"] * 8,
+        "attack-type": ["BENIGN"] * 8,
+        "attack type": ["DoS"] * 8,
+    })
+
+    with pytest.raises(ValueError, match="Ambiguous duplicate input headers after normalization"):
+        attack_volume_series(frame)
