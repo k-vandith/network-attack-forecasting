@@ -97,3 +97,17 @@ def test_forecast_volumes_rejects_nonfinite_attack_counts():
 def test_evaluation_metrics_validate_inputs(actual, predicted, match):
     with pytest.raises(ValueError, match=match):
         evaluation_metrics(actual, predicted)
+
+
+
+def test_requested_missing_dataset_does_not_fall_back_to_synthetic(tmp_path: Path):
+    missing = tmp_path / "typoed-dataset.csv"
+
+    with pytest.raises(FileNotFoundError, match="Dataset file not found"):
+        load_cicids_style(missing)
+
+
+@pytest.mark.parametrize("rows", [0, -1, 1.5, True])
+def test_synthetic_loader_rejects_invalid_row_counts(rows):
+    with pytest.raises(ValueError, match="positive integer"):
+        load_cicids_style(n=rows)
