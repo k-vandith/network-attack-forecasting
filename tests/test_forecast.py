@@ -151,9 +151,9 @@ def test_forecast_core_rejects_colliding_normalized_headers():
         ("FTP-Patator", "r2l"),
         ("buffer_overflow", "u2r"),
         ("Benign", "normal"),
-        ("dosage review", "other"),
-        ("probable routine event", "other"),
-        ("scanline metric", "other"),
+        ("dosage review", "unclassified"),
+        ("probable routine event", "unclassified"),
+        ("scanline metric", "unclassified"),
     ],
 )
 def test_canonical_label_uses_known_tokens_not_substring_accidents(label, expected):
