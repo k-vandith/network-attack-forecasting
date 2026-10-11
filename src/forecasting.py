@@ -41,6 +41,12 @@ def _normalize_frame(df: pd.DataFrame) -> pd.DataFrame:
     if labels.isna().any() or labels.eq("").any():
         raise ValueError("The label column contains blank values. Remove or fill those rows.")
     result["label"] = labels.map(canonical_label).astype(str)
+    if result["label"].eq("unclassified").any():
+        examples = sorted(set(labels[result["label"].eq("unclassified")].astype(str)))[:5]
+        raise ValueError(
+            "Unrecognized network-event label(s): " + ", ".join(repr(item) for item in examples)
+            + ". Map them to a known benign or attack class before forecasting."
+        )
 
     normalized = {_header_key(column): column for column in result.columns}
     timestamp_column = next((normalized[key] for key in _TIME_HEADERS if key in normalized), None)
