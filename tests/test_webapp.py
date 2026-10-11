@@ -157,3 +157,17 @@ def test_network_forecast_does_not_run_synthetic_demo_on_page_load():
     assert not script.rstrip().endswith("runDemo();")
     assert 'No dataset loaded. Upload labelled network events' in script
     assert 'document.getElementById("useDemo").addEventListener("click", useDemo)' in script
+
+
+
+def test_uploaded_csv_rejects_unrecognized_labels_instead_of_counting_them_as_attacks():
+    with pytest.raises(ValueError, match="Unrecognized network-event label"):
+        build_uploaded_payload(
+            b"timestamp,label\n2026-01-01T00:00:00Z,maintenance\n"
+            b"2026-01-01T01:00:00Z,maintenance\n"
+            b"2026-01-01T02:00:00Z,maintenance\n"
+            b"2026-01-01T03:00:00Z,maintenance\n"
+            b"2026-01-01T04:00:00Z,maintenance\n"
+            b"2026-01-01T05:00:00Z,maintenance\n",
+            horizon=6,
+        )
