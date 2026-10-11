@@ -151,12 +151,19 @@ def test_forecast_core_rejects_colliding_normalized_headers():
         ("FTP-Patator", "r2l"),
         ("buffer_overflow", "u2r"),
         ("Benign", "normal"),
-        ("dosage review", "unclassified"),
-        ("probable routine event", "unclassified"),
-        ("scanline metric", "unclassified"),
+        ("Custom threat", "other"),
+        ("Heartbleed", "other"),
     ],
 )
 def test_canonical_label_uses_known_tokens_not_substring_accidents(label, expected):
     from src.labels import canonical_label
 
     assert canonical_label(label) == expected
+
+
+@pytest.mark.parametrize("label", ["dosage review", "probable routine event", "scanline metric"])
+def test_unrecognized_labels_are_rejected_instead_of_guessed(label):
+    from src.labels import canonical_label
+
+    with pytest.raises(ValueError, match="Unrecognized network-event label"):
+        canonical_label(label)
