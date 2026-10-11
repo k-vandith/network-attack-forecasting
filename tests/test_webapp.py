@@ -145,3 +145,15 @@ def test_uploaded_forecast_rejects_empty_hourly_buckets_instead_of_treating_them
 
     with pytest.raises(ValueError, match="Missing telemetry cannot safely be treated as zero attacks"):
         build_uploaded_payload(raw, horizon=6)
+
+
+
+def test_network_forecast_does_not_run_synthetic_demo_on_page_load():
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+    script = (root / "web" / "app.js").read_text(encoding="utf-8")
+    assert 'let mode = "none";' in script
+    assert not script.rstrip().endswith("runDemo();")
+    assert 'No dataset loaded. Upload labelled network events' in script
+    assert 'document.getElementById("useDemo").addEventListener("click", useDemo)' in script
