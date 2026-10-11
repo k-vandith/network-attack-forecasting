@@ -21,8 +21,8 @@ def canonical_label(value: object) -> str:
     if tokens & probe_tokens or "port scan" in compact:
         return "probe"
 
-    u2r_tokens = {"u2r", "privilege", "escalation", "rootkit", "loadmodule", "buffer", "perl"}
-    if tokens & u2r_tokens or "local exploit" in compact or "buffer overflow" in compact:
+    u2r_tokens = {"u2r", "rootkit", "loadmodule", "perl"}
+    if tokens & u2r_tokens or "privilege escalation" in compact or "local exploit" in compact or "buffer overflow" in compact:
         return "u2r"
 
     r2l_tokens = {"r2l", "brute", "bruteforce", "patator", "credential", "password", "phf", "imap", "multihop", "warezclient", "warezmaster", "spy"}
