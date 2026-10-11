@@ -29,4 +29,14 @@ def canonical_label(value: object) -> str:
     if tokens & r2l_tokens or "remote to local" in compact or "ftp write" in compact or "ssh attack" in compact:
         return "r2l"
 
-    return "other"
+    other_tokens = {
+        "other", "attack", "attacks", "malicious", "threat", "intrusion",
+        "infiltration", "bot", "botnet", "heartbleed", "exploit", "exploitkit",
+        "sql", "xss", "custom",
+    }
+    if tokens & other_tokens or "custom threat" in compact or "unknown attack" in compact:
+        return "other"
+
+    raise ValueError(
+        f"Unrecognized network-event label {str(value)!r}. Map it to a known benign or attack class before forecasting."
+    )
