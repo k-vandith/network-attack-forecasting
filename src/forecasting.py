@@ -25,7 +25,14 @@ def _normalize_frame(df: pd.DataFrame) -> pd.DataFrame:
         raise ValueError("The input dataset has no rows.")
 
     result = df.copy()
-    normalized = {_header_key(column): column for column in result.columns}
+    normalized: dict[str, object] = {}
+    for column in result.columns:
+        key = _header_key(column)
+        if key in normalized:
+            raise ValueError(
+                f"Ambiguous duplicate input headers after normalization: {normalized[key]!r} and {column!r}."
+            )
+        normalized[key] = column
     label_column = next((normalized[key] for key in _LABEL_HEADERS if key in normalized), None)
     if label_column is None:
         raise ValueError("A label column is required. Use label, class, attack_type, category, or target.")
@@ -34,6 +41,12 @@ def _normalize_frame(df: pd.DataFrame) -> pd.DataFrame:
     if labels.isna().any() or labels.eq("").any():
         raise ValueError("The label column contains blank values. Remove or fill those rows.")
     result["label"] = labels.map(canonical_label).astype(str)
+    if result["label"].eq("unclassified").any():
+        examples = sorted(set(labels[result["label"].eq("unclassified")].astype(str)))[:5]
+        raise ValueError(
+            "Unrecognized network-event label(s): " + ", ".join(repr(item) for item in examples)
+            + ". Map them to a known benign or attack class before forecasting."
+        )
 
     normalized = {_header_key(column): column for column in result.columns}
     timestamp_column = next((normalized[key] for key in _TIME_HEADERS if key in normalized), None)

@@ -55,7 +55,15 @@ def _prepare_csv(raw: bytes) -> pd.DataFrame:
     if len(frame) > MAX_UPLOAD_ROWS:
         raise ValueError(f"CSV files can contain at most {MAX_UPLOAD_ROWS:,} rows.")
 
-    normalized_headers = {_header_key(column): column for column in frame.columns}
+    normalized_headers: dict[str, object] = {}
+    for column in frame.columns:
+        normalized = _header_key(column)
+        if normalized in normalized_headers:
+            first = normalized_headers[normalized]
+            raise ValueError(
+                f"Ambiguous duplicate CSV headers after normalization: {first!r} and {column!r}."
+            )
+        normalized_headers[normalized] = column
     label_column = next((normalized_headers[key] for key in LABEL_HEADERS if key in normalized_headers), None)
     if label_column is None:
         raise ValueError("A label column is required. Use label, class, attack_type, category, or target.")
@@ -64,6 +72,12 @@ def _prepare_csv(raw: bytes) -> pd.DataFrame:
     if labels.isna().any() or labels.eq("").any():
         raise ValueError("The label column contains blank values. Remove or fill those rows.")
     prepared = pd.DataFrame({"label": labels.map(_canonical_label).astype(str)})
+    if prepared["label"].eq("unclassified").any():
+        examples = sorted(set(labels[prepared["label"].eq("unclassified")].astype(str)))[:5]
+        raise ValueError(
+            "Unrecognized network-event label(s): " + ", ".join(repr(item) for item in examples)
+            + ". Map them to a known benign or attack class before forecasting."
+        )
 
     time_column = next((normalized_headers[key] for key in TIME_HEADERS if key in normalized_headers), None)
     if time_column is not None:
@@ -84,6 +98,11 @@ def _build_payload(frame: pd.DataFrame, horizon: int, synthetic: bool) -> dict:
         raise ValueError("Choose a forecast horizon of 6, 12, 18, or 24 hours.")
 
     volume = attack_volume_series(frame)
+    if "total" in volume.columns and volume["total"].eq(0).any():
+        raise ValueError(
+            "The time series contains hour(s) with no observed records. "
+            "Missing telemetry cannot safely be treated as zero attacks; supply complete hourly coverage."
+        )
     if len(volume) < 5:
         raise ValueError(
             "The CSV must cover at least five hourly intervals. Include timestamps spanning five hours, "

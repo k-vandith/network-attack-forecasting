@@ -127,3 +127,43 @@ def test_file_loader_prefers_canonical_label_and_timestamp_columns_when_aliases_
     assert int(volume["total"].sum()) == 8
     assert int(volume["attack_count"].sum()) == 0
     assert int(volume["dos"].sum()) == 0
+
+
+
+def test_forecast_core_rejects_colliding_normalized_headers():
+    frame = pd.DataFrame({
+        "label": ["BENIGN"] * 8,
+        "attack-type": ["BENIGN"] * 8,
+        "attack type": ["DoS"] * 8,
+    })
+
+    with pytest.raises(ValueError, match="Ambiguous duplicate input headers after normalization"):
+        attack_volume_series(frame)
+
+
+
+@pytest.mark.parametrize(
+    "label, expected",
+    [
+        ("DoS Hulk", "dos"),
+        ("DDoS", "dos"),
+        ("PortScan", "probe"),
+        ("FTP-Patator", "r2l"),
+        ("buffer_overflow", "u2r"),
+        ("Benign", "normal"),
+        ("Custom threat", "other"),
+        ("Heartbleed", "other"),
+    ],
+)
+def test_canonical_label_uses_known_tokens_not_substring_accidents(label, expected):
+    from src.labels import canonical_label
+
+    assert canonical_label(label) == expected
+
+
+@pytest.mark.parametrize("label", ["dosage review", "probable routine event", "scanline metric"])
+def test_unrecognized_labels_are_rejected_instead_of_guessed(label):
+    from src.labels import canonical_label
+
+    with pytest.raises(ValueError, match="Unrecognized network-event label"):
+        canonical_label(label)

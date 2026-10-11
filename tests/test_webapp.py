@@ -124,3 +124,50 @@ def test_uploaded_csv_prefers_canonical_columns_when_aliases_coexist():
     assert result["rows"] == 8
     assert result["attack_events"] == 0
     assert result["attack_types"]["dos"] == 0
+
+
+
+def test_uploaded_csv_rejects_headers_that_normalize_to_the_same_name():
+    with pytest.raises(ValueError, match="Ambiguous duplicate CSV headers after normalization"):
+        build_uploaded_payload(
+            b"label,attack-type,attack type\nBENIGN,normal,dos\n",
+            horizon=6,
+        )
+
+
+
+def test_uploaded_forecast_rejects_empty_hourly_buckets_instead_of_treating_them_as_zero():
+    rows = ["timestamp,label"]
+    start = datetime(2026, 1, 1, tzinfo=timezone.utc)
+    for index in range(8):
+        rows.append(f"{(start + timedelta(hours=index * 2)).isoformat()},BENIGN")
+    raw = ("\n".join(rows) + "\n").encode("utf-8")
+
+    with pytest.raises(ValueError, match="Missing telemetry cannot safely be treated as zero attacks"):
+        build_uploaded_payload(raw, horizon=6)
+
+
+
+def test_network_forecast_does_not_run_synthetic_demo_on_page_load():
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+    script = (root / "web" / "app.js").read_text(encoding="utf-8")
+    assert 'let mode = "none";' in script
+    assert not script.rstrip().endswith("runDemo();")
+    assert 'No dataset loaded. Upload labelled network events' in script
+    assert 'document.getElementById("useDemo").addEventListener("click", useDemo)' in script
+
+
+
+def test_uploaded_csv_rejects_unrecognized_labels_instead_of_counting_them_as_attacks():
+    with pytest.raises(ValueError, match="Unrecognized network-event label"):
+        build_uploaded_payload(
+            b"timestamp,label\n2026-01-01T00:00:00Z,maintenance\n"
+            b"2026-01-01T01:00:00Z,maintenance\n"
+            b"2026-01-01T02:00:00Z,maintenance\n"
+            b"2026-01-01T03:00:00Z,maintenance\n"
+            b"2026-01-01T04:00:00Z,maintenance\n"
+            b"2026-01-01T05:00:00Z,maintenance\n",
+            horizon=6,
+        )

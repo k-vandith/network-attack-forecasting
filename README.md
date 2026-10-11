@@ -26,7 +26,7 @@ Open http://127.0.0.1:8501.
 
 ## Upload a CSV
 
-Choose or drag a CSV into the dashboard. Required column: label. Optional column: timestamp. Headers such as class, attack_type, category, time, and datetime are also accepted. The file must be 5 MB or smaller and cover at least five hourly intervals. Without timestamps, VectorCast assumes one event per minute, so provide at least 241 rows.
+Choose or drag a CSV into the dashboard. Required column: label. Optional column: timestamp. Headers such as class, attack_type, category, time, and datetime are also accepted. The file must be 5 MB or smaller and cover at least five hourly intervals, with no empty hourly buckets when timestamps are supplied. Ambiguous normalized headers and unrecognized label values are rejected instead of guessed. Without timestamps, VectorCast assumes one event per minute, so provide at least 241 rows.
 
 You can also start with **Download sample CSV** in the app or use the demo stream. Change the forecast horizon, run the forecast, and export the results as CSV or JSON.
 
