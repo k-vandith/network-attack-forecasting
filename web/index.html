@@ -31,7 +31,7 @@
           <h1>Forecast <span>control room</span><b>.</b></h1>
           <p>Bring your labelled network events, build a short-range forecast, and inspect the hours that stand out.</p>
         </div>
-        <div class="hero-meta"><span class="hero-meta-label">WORKSPACE STATUS</span><strong id="workspaceStatus"><i class="status-dot"></i> Demo stream active</strong><small>Analysis stays on this machine</small></div>
+        <div class="hero-meta"><span class="hero-meta-label">WORKSPACE STATUS</span><strong id="workspaceStatus"><i class="status-dot"></i> Awaiting data</strong><small>Analysis stays on this machine</small></div>
       </section>
 
       <section class="panel ingest-panel" aria-labelledby="ingestTitle">
@@ -48,7 +48,7 @@
             <div class="upload-emblem"><span>↑</span></div>
             <div class="drop-copy"><strong>Drop a CSV file here</strong><span>or choose a file from your computer</span></div>
             <button id="browseCsv" class="button button-outline" type="button">Browse files</button>
-            <div id="fileName" class="file-name">No file selected <span>·</span> demo is ready</div>
+            <div id="fileName" class="file-name">No file selected <span>·</span> no data loaded</div>
           </div>
           <input id="csvFile" class="visually-hidden" type="file" accept=".csv,text/csv" aria-label="CSV file">
           <div class="input-contract">
@@ -64,7 +64,7 @@
             <button id="analyzeFile" class="button button-primary" type="button" disabled>Analyze uploaded CSV <span>↗</span></button>
             <span class="privacy-note"><i class="privacy-icon">◆</i> Processed locally · not saved to disk</span>
           </div>
-          <span id="sourceBadge" class="source-badge">SOURCE / DEMO</span>
+          <span id="sourceBadge" class="source-badge">SOURCE / NONE</span>
         </div>
       </section>
 
@@ -86,7 +86,7 @@
 
       <section class="results-heading">
         <div><div class="eyebrow"><span class="eyebrow-mark"></span> OUTPUT / SERIES ANALYSIS</div><h2>Signal overview</h2></div>
-        <div class="source-description" id="resultSource">Using reproducible synthetic traffic</div>
+        <div class="source-description" id="resultSource">No dataset loaded · upload data or explicitly select Use demo data</div>
       </section>
 
       <section class="results-grid">
@@ -102,8 +102,8 @@
         <aside class="panel readout-panel">
           <div class="panel-head"><div class="panel-index">04 <span>/</span> MODEL READOUT</div><span class="readout-glyph">◈</span></div>
           <div class="outlook-label"><i class="status-dot" id="outlookDot"></i> PROJECTED OUTLOOK</div>
-          <div id="outlookWord" class="outlook-word">Calculating</div>
-          <p id="outlookText" class="outlook-text">Comparing the projection against observed volume.</p>
+          <div id="outlookWord" class="outlook-word">Awaiting data</div>
+          <p id="outlookText" class="outlook-text">Upload labelled network events or explicitly select Use demo data.</p>
           <div class="readout-stat"><span>Projected event count</span><strong id="forecastTotal">—</strong></div>
           <div class="readout-stat"><span>Mean attacks / hour</span><strong id="avgAttacks">—</strong></div>
           <div class="readout-stat"><span>Attack share</span><strong id="attackShare">—</strong></div>
@@ -120,7 +120,7 @@
         </article>
         <article class="panel">
           <div class="panel-head"><div><div class="panel-index">06 <span>/</span> REVIEW QUEUE</div><h3>Unusual hourly windows</h3></div><span class="panel-tag" id="signalBadge">—</span></div>
-          <div id="signalList" class="signal-list"><div class="chart-loading">Scanning sample…</div></div>
+          <div id="signalList" class="signal-list"><div class="chart-loading">Awaiting a selected data source.</div></div>
           <div class="review-threshold"><span>THRESHOLD</span> Full-series mean + 2 standard deviations</div>
         </article>
       </section>
