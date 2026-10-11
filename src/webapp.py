@@ -92,6 +92,11 @@ def _build_payload(frame: pd.DataFrame, horizon: int, synthetic: bool) -> dict:
         raise ValueError("Choose a forecast horizon of 6, 12, 18, or 24 hours.")
 
     volume = attack_volume_series(frame)
+    if "total" in volume.columns and volume["total"].eq(0).any():
+        raise ValueError(
+            "The time series contains hour(s) with no observed records. "
+            "Missing telemetry cannot safely be treated as zero attacks; supply complete hourly coverage."
+        )
     if len(volume) < 5:
         raise ValueError(
             "The CSV must cover at least five hourly intervals. Include timestamps spanning five hours, "
