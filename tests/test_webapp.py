@@ -124,3 +124,12 @@ def test_uploaded_csv_prefers_canonical_columns_when_aliases_coexist():
     assert result["rows"] == 8
     assert result["attack_events"] == 0
     assert result["attack_types"]["dos"] == 0
+
+
+
+def test_uploaded_csv_rejects_headers_that_normalize_to_the_same_name():
+    with pytest.raises(ValueError, match="Ambiguous duplicate CSV headers after normalization"):
+        build_uploaded_payload(
+            b"label,attack-type,attack type\nBENIGN,normal,dos\n",
+            horizon=6,
+        )
