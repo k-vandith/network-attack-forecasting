@@ -8,7 +8,7 @@ const analyzeButton = document.getElementById("analyzeFile");
 const fileName = document.getElementById("fileName");
 const toast = document.getElementById("toast");
 
-let mode = "demo";
+let mode = "none";
 let selectedFile = null;
 let currentPayload = null;
 let toastTimer = null;
@@ -44,17 +44,19 @@ function setBusy(busy, label) {
 function setMode(nextMode) {
   mode = nextMode;
   const isUpload = mode === "upload";
+  const isDemo = mode === "demo";
   rowsInput.disabled = isUpload;
   rowsInput.closest(".sample-control").classList.toggle("control-disabled", isUpload);
   document.getElementById("workspaceStatus").innerHTML = isUpload
     ? '<i class="status-dot"></i> CSV loaded'
-    : '<i class="status-dot"></i> Demo stream active';
-  document.getElementById("sourceBadge").textContent = isUpload ? "SOURCE / CSV UPLOAD" : "SOURCE / DEMO";
+    : isDemo ? '<i class="status-dot"></i> Demo stream active' : '<i class="status-dot"></i> Awaiting data';
+  document.getElementById("sourceBadge").textContent = isUpload
+    ? "SOURCE / CSV UPLOAD" : isDemo ? "SOURCE / DEMO" : "SOURCE / NONE";
   document.getElementById("sourceBadge").classList.toggle("uploaded", isUpload);
   document.getElementById("sampleControl").setAttribute("aria-disabled", String(isUpload));
   document.getElementById("resultSource").textContent = isUpload
     ? "Forecast calculated from uploaded data"
-    : "Using reproducible synthetic traffic";
+    : isDemo ? "Using reproducible synthetic traffic" : "No dataset loaded · upload data or explicitly select Use demo data";
 }
 
 function updateReadout(data) {
@@ -217,7 +219,8 @@ async function runUploaded() {
 
 async function runCurrent() {
   if (mode === "upload" && selectedFile) return runUploaded();
-  return runDemo();
+  if (mode === "demo") return runDemo();
+  announce("No dataset loaded. Upload labelled network events or explicitly select Use demo data.", true);
 }
 
 function chooseFile(file) {
@@ -294,7 +297,7 @@ function downloadTemplate() {
 function useDemo() {
   selectedFile = null;
   csvInput.value = "";
-  fileName.textContent = "No file selected · demo is ready";
+  fileName.textContent = "No file selected · no data loaded";
   fileName.classList.remove("visible");
   dropZone.classList.remove("has-file", "dragging");
   analyzeButton.disabled = true;
@@ -308,7 +311,7 @@ rowsInput.addEventListener("input", () => {
 rowsInput.addEventListener("change", () => {
   if (mode === "demo") runDemo();
 });
-horizonInput.addEventListener("change", runCurrent);
+horizonInput.addEventListener("change", () => { if (currentPayload) runCurrent(); });
 runButton.addEventListener("click", runCurrent);
 analyzeButton.addEventListener("click", runUploaded);
 document.getElementById("useDemo").addEventListener("click", useDemo);
@@ -344,4 +347,8 @@ dropZone.addEventListener("drop", event => {
   if (file) chooseFile(file);
 });
 
-runDemo();
+setMode("none");
+document.getElementById("outlookWord").textContent = "Awaiting data";
+document.getElementById("outlookText").textContent = "Upload labelled network events or explicitly select Use demo data. No prediction is shown without a selected source.";
+document.getElementById("signalList").innerHTML = '<div class="chart-loading">Awaiting a selected data source.</div>';
+document.getElementById("resultSource").textContent = "No dataset loaded · upload data or explicitly select Use demo data";
