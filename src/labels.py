@@ -37,6 +37,6 @@ def canonical_label(value: object) -> str:
     if tokens & other_tokens or "custom threat" in compact or "unknown attack" in compact:
         return "other"
 
-    raise ValueError(
-        f"Unrecognized network-event label {str(value)!r}. Map it to a known benign or attack class before forecasting."
-    )
+    # Keep ambiguous labels separate from attacks. Callers that forecast must
+    # explicitly reject this value rather than counting it as an attack.
+    return "unclassified"
