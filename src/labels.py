@@ -1,19 +1,32 @@
 """Shared normalization for common benign and attack labels."""
 from __future__ import annotations
 
+import re
+
 
 def canonical_label(value: object) -> str:
-    """Map common dataset labels to the dashboard's canonical attack classes."""
-    label = str(value).strip().lower()
-    compact = label.replace("_", " ").replace("-", " ")
-    if compact in {"normal", "normal.", "benign", "benign.", "benign traffic", "legitimate", "0", "false"}:
+    """Map known labels to classes without substring false positives."""
+    compact = re.sub(r"[^a-z0-9]+", " ", str(value).strip().casefold()).strip()
+    tokens = set(compact.split())
+
+    if compact in {"normal", "normal traffic", "benign", "benign traffic", "legitimate", "0", "false"}:
         return "normal"
-    if any(token in compact for token in ("ddos", "dos", "denial of service", "slowloris", "slow http", "hulk", "goldeneye", "syn flood", "udp flood")):
+
+    dos_tokens = {"ddos", "dos", "slowloris", "hulk", "goldeneye", "synflood", "udpflood"}
+    dos_phrases = ("denial of service", "slow http", "syn flood", "udp flood")
+    if tokens & dos_tokens or any(phrase in compact for phrase in dos_phrases):
         return "dos"
-    if any(token in compact for token in ("probe", "portscan", "port scan", "scan", "reconnaissance")):
+
+    probe_tokens = {"probe", "portscan", "scan", "reconnaissance", "ipsweep", "nmap", "portsweep", "mscan", "saint", "satan"}
+    if tokens & probe_tokens or "port scan" in compact:
         return "probe"
-    if any(token in compact for token in ("u2r", "privilege", "escalation", "rootkit", "local exploit")):
+
+    u2r_tokens = {"u2r", "privilege", "escalation", "rootkit", "loadmodule", "buffer", "perl"}
+    if tokens & u2r_tokens or "local exploit" in compact or "buffer overflow" in compact:
         return "u2r"
-    if any(token in compact for token in ("r2l", "remote to local", "brute", "patator", "credential", "password", "ftp write", "ssh attack")):
+
+    r2l_tokens = {"r2l", "brute", "bruteforce", "patator", "credential", "password", "phf", "imap", "multihop", "warezclient", "warezmaster", "spy"}
+    if tokens & r2l_tokens or "remote to local" in compact or "ftp write" in compact or "ssh attack" in compact:
         return "r2l"
+
     return "other"
