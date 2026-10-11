@@ -55,7 +55,15 @@ def _prepare_csv(raw: bytes) -> pd.DataFrame:
     if len(frame) > MAX_UPLOAD_ROWS:
         raise ValueError(f"CSV files can contain at most {MAX_UPLOAD_ROWS:,} rows.")
 
-    normalized_headers = {_header_key(column): column for column in frame.columns}
+    normalized_headers: dict[str, object] = {}
+    for column in frame.columns:
+        normalized = _header_key(column)
+        if normalized in normalized_headers:
+            first = normalized_headers[normalized]
+            raise ValueError(
+                f"Ambiguous duplicate CSV headers after normalization: {first!r} and {column!r}."
+            )
+        normalized_headers[normalized] = column
     label_column = next((normalized_headers[key] for key in LABEL_HEADERS if key in normalized_headers), None)
     if label_column is None:
         raise ValueError("A label column is required. Use label, class, attack_type, category, or target.")
