@@ -105,3 +105,22 @@ def test_payload_rejects_unsupported_demo_sizes(rows):
 def test_payload_rejects_unsupported_horizons(horizon):
     with pytest.raises(ValueError):
         build_forecast_payload(n=800, horizon=horizon)
+
+def test_uploaded_csv_prefers_canonical_columns_when_aliases_coexist():
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["timestamp", "datetime", "label", "class"])
+    start = datetime(2026, 1, 1, tzinfo=timezone.utc)
+    for index in range(8):
+        writer.writerow([
+            (start + timedelta(hours=index)).isoformat(),
+            "not-a-timestamp",
+            "BENIGN",
+            "DoS",
+        ])
+
+    result = build_uploaded_payload(output.getvalue().encode("utf-8"), horizon=6)
+
+    assert result["rows"] == 8
+    assert result["attack_events"] == 0
+    assert result["attack_types"]["dos"] == 0

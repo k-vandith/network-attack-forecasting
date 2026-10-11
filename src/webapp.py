@@ -25,8 +25,9 @@ STATIC_FILES = {
     "/web/mark.svg": ("mark.svg", "image/svg+xml"),
 }
 
-LABEL_HEADERS = {"label", "class", "attack", "attack_type", "category", "target", "y"}
-TIME_HEADERS = {"timestamp", "time", "datetime", "date_time", "event_time", "date"}
+# Prefer the canonical field first when a source provides multiple accepted aliases.
+LABEL_HEADERS = ("label", "class", "attack", "attack_type", "category", "target", "y")
+TIME_HEADERS = ("timestamp", "datetime", "date_time", "event_time", "time", "date")
 
 
 def _header_key(value: object) -> str:
