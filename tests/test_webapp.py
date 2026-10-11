@@ -133,3 +133,15 @@ def test_uploaded_csv_rejects_headers_that_normalize_to_the_same_name():
             b"label,attack-type,attack type\nBENIGN,normal,dos\n",
             horizon=6,
         )
+
+
+
+def test_uploaded_forecast_rejects_empty_hourly_buckets_instead_of_treating_them_as_zero():
+    rows = ["timestamp,label"]
+    start = datetime(2026, 1, 1, tzinfo=timezone.utc)
+    for index in range(8):
+        rows.append(f"{(start + timedelta(hours=index * 2)).isoformat()},BENIGN")
+    raw = ("\n".join(rows) + "\n").encode("utf-8")
+
+    with pytest.raises(ValueError, match="Missing telemetry cannot safely be treated as zero attacks"):
+        build_uploaded_payload(raw, horizon=6)
