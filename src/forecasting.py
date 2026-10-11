@@ -53,8 +53,13 @@ def _normalize_frame(df: pd.DataFrame) -> pd.DataFrame:
 
 def load_cicids_style(path: Path | None = None, n: int = 3000) -> pd.DataFrame:
     """Load and normalize a file or make a deterministic synthetic example."""
-    if path is not None and Path(path).exists():
-        return _normalize_frame(pd.read_csv(path))
+    if path is not None:
+        source = Path(path).expanduser()
+        if not source.is_file():
+            raise FileNotFoundError(f"Dataset file not found: {source}")
+        return _normalize_frame(pd.read_csv(source))
+    if not isinstance(n, int) or isinstance(n, bool) or n < 1:
+        raise ValueError("Synthetic row count must be a positive integer.")
     df = generate_synthetic(n=n)
     df["timestamp"] = pd.date_range(
         "2024-01-01", periods=len(df), freq="min", tz="UTC"
