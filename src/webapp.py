@@ -11,6 +11,7 @@ from urllib.parse import parse_qs, urlparse
 import pandas as pd
 
 from src.forecasting import attack_volume_series, forecast_volumes, load_cicids_style
+from src.labels import canonical_label as _canonical_label
 
 ROOT = Path(__file__).resolve().parents[1]
 WEB_ROOT = ROOT / "web"
@@ -30,22 +31,6 @@ TIME_HEADERS = {"timestamp", "time", "datetime", "date_time", "event_time", "dat
 
 def _header_key(value: object) -> str:
     return str(value).strip().lower().replace(" ", "_").replace("-", "_")
-
-
-def _canonical_label(value: object) -> str:
-    label = str(value).strip().lower()
-    compact = label.replace("_", " ").replace("-", " ")
-    if compact in {"normal", "normal.", "benign", "benign.", "benign traffic", "legitimate", "0", "false"}:
-        return "normal"
-    if any(token in compact for token in ("ddos", "dos", "denial of service", "slowloris", "slow http", "hulk", "goldeneye", "syn flood", "udp flood")):
-        return "dos"
-    if any(token in compact for token in ("probe", "portscan", "port scan", "scan", "reconnaissance")):
-        return "probe"
-    if any(token in compact for token in ("u2r", "privilege", "escalation", "rootkit", "local exploit")):
-        return "u2r"
-    if any(token in compact for token in ("r2l", "remote to local", "brute", "patator", "credential", "password", "ftp write", "ssh attack")):
-        return "r2l"
-    return "other"
 
 
 def _prepare_csv(raw: bytes) -> pd.DataFrame:
