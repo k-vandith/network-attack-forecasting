@@ -111,3 +111,19 @@ def test_requested_missing_dataset_does_not_fall_back_to_synthetic(tmp_path: Pat
 def test_synthetic_loader_rejects_invalid_row_counts(rows):
     with pytest.raises(ValueError, match="positive integer"):
         load_cicids_style(n=rows)
+
+def test_file_loader_prefers_canonical_label_and_timestamp_columns_when_aliases_coexist():
+    frame = pd.DataFrame(
+        {
+            "timestamp": pd.date_range("2025-01-01", periods=8, freq="h", tz="UTC"),
+            "datetime": ["not-a-timestamp"] * 8,
+            "label": ["BENIGN"] * 8,
+            "class": ["DoS"] * 8,
+        }
+    )
+
+    volume = attack_volume_series(frame)
+
+    assert int(volume["total"].sum()) == 8
+    assert int(volume["attack_count"].sum()) == 0
+    assert int(volume["dos"].sum()) == 0

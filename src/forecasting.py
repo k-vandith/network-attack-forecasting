@@ -10,8 +10,9 @@ import pandas as pd
 from src.labels import canonical_label
 from src.pipeline import generate_synthetic
 
-_LABEL_HEADERS = {"label", "class", "attack", "attack_type", "category", "target", "y"}
-_TIME_HEADERS = {"timestamp", "time", "datetime", "date_time", "event_time", "date"}
+# Prefer the canonical field first when a source provides multiple accepted aliases.
+_LABEL_HEADERS = ("label", "class", "attack", "attack_type", "category", "target", "y")
+_TIME_HEADERS = ("timestamp", "datetime", "date_time", "event_time", "time", "date")
 
 
 def _header_key(value: object) -> str:
